@@ -10,7 +10,7 @@ st.set_page_config(page_title="Retail Insights Dashboard", layout="wide")
 st.title("Retail Store & Customer Insights Dashboard")
 
 # ------------------------
-# Load data
+# Load data (cached)
 # ------------------------
 @st.cache_data
 def load_data():

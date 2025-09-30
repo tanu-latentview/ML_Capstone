@@ -1,4 +1,5 @@
 # streamlit_app.py
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -14,14 +15,28 @@ st.title("Retail Store & Customer Insights Dashboard")
 # ------------------------
 @st.cache_data
 def load_data():
-    df = pd.read_csv("Data/processed_sales_data.csv", parse_dates=["invoice_date"])
-    rfm = pd.read_csv("Data/rfm_customer_segments.csv")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    sales_path = os.path.join(base_dir, "Data", "processed_sales_data.csv")
+    rfm_path = os.path.join(base_dir, "Data", "rfm_customer_segments.csv")
+
+    df = pd.read_csv(sales_path, parse_dates=["invoice_date"])
+    rfm = pd.read_csv(rfm_path)
+
     # Ensure revenue exists
     if "revenue" not in df.columns:
         df["revenue"] = df.get("quantity", 0) * df.get("price", 0)
     return df, rfm
 
-df, rfm = load_data()
+with st.spinner("⏳ Loading data..."):
+    try:
+        df, rfm = load_data()
+        st.success(f"✅ Data loaded! Sales: {df.shape}, RFM: {rfm.shape}")
+    except FileNotFoundError as e:
+        st.error(f"❌ File not found: {e}")
+        st.stop()
+    except Exception as e:
+        st.error(f"⚠️ Error loading data: {e}")
+        st.stop()
 
 # ------------------------
 # Sidebar filters
